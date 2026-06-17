@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<section class="demo-panel admin-panel">
+    <div class="demo-panel__header admin-panel__header">
+        <h2>Доступные хеш-функции</h2>
+        <p>Изменения сразу отражаются в пользовательских разделах демонстрации и сравнения.</p>
+    </div>
+
+    {% if hash_functions %}
+    <div class="admin-option-list">
+        {% for item in hash_functions %}
+        <article class="admin-option-card">
+            <div class="admin-option-card__body">
+                <div class="admin-option-card__heading">
+                    <h3>{{ item.label }}</h3>
+                    <span class="admin-status-badge {% if item.is_enabled %}admin-status-badge--enabled{% else %}admin-status-badge--disabled{% endif %}">
+                        {% if item.is_enabled %}Включена{% else %}Выключена{% endif %}
+                    </span>
+                </div>
+                <p><code>{{ item.code }}</code></p>
+                <p>{{ item.description }}</p>
+                <p class="admin-option-card__meta">Текущий порядок: {{ item.sort_order }}</p>
+            </div>
+
+            <div class="admin-option-card__footer">
+                <form action="{{ url_for('admin_update_hash_function_order', option_id=item.id) }}" method="post" class="admin-order-form">
+                    <label class="admin-order-field">
+                        <span>Порядок</span>
+                        <input type="number" name="sort_order" value="{{ item.sort_order }}">
+                    </label>
+                    <button type="submit" class="admin-secondary-button">Сохранить порядок</button>
+                </form>
+
+                <form action="{{ url_for('admin_toggle_hash_function', option_id=item.id) }}" method="post">
+                    <button type="submit" class="demo-button">
+                        {% if item.is_enabled %}Отключить{% else %}Включить{% endif %}
+                    </button>
+                </form>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="education-empty-state">
+        В каталоге пока нет ни одной хеш-функции.
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

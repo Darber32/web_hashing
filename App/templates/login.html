@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<section class="auth-shell">
+    <aside class="auth-aside">
+        <p class="auth-aside__eyebrow">Вход</p>
+        <h1>Продолжайте изучение хеш-функций без потери результатов</h1>
+        <p class="auth-aside__description">
+            После входа ваши демонстрации и сравнения будут сохраняться в аккаунте. Так удобно возвращаться к уже введённым
+            сообщениям и анализировать поведение алгоритмов шаг за шагом.
+        </p>
+
+        <div class="auth-aside__list">
+            <article class="auth-aside__item">
+                <strong>Сохранённая практика</strong>
+                <span>Результаты демонстрации и сравнения останутся доступны при следующем входе.</span>
+            </article>
+            <article class="auth-aside__item">
+                <strong>Единый маршрут обучения</strong>
+                <span>Теория, практика и сравнение будут собраны в одном связанном рабочем процессе.</span>
+            </article>
+            <article class="auth-aside__item">
+                <strong>Быстрый возврат</strong>
+                <span>Не придётся заново собирать примеры после закрытия браузера или перезапуска сессии.</span>
+            </article>
+        </div>
+    </aside>
+
+    <section class="auth-card">
+        <div class="auth-card__header">
+            <p class="auth-card__eyebrow">Аккаунт</p>
+            <h2>Войти в систему</h2>
+            <p>Используйте email и пароль, чтобы продолжить работу с материалами и сохранёнными результатами.</p>
+        </div>
+
+        {% if error %}
+        <div id="error-alert" class="error-alert">
+            {{ error }}
+            <button type="button" class="close-btn" onclick="close_error()">&times;</button>
+        </div>
+        {% endif %}
+
+        <form action="/auth/login" method="post" class="auth-form">
+            <label class="auth-form__field">
+                <span>Email</span>
+                <input type="email" name="email" required autocomplete="email">
+            </label>
+
+            <label class="auth-form__field">
+                <span>Пароль</span>
+                <input type="password" name="password" required autocomplete="current-password">
+            </label>
+
+            <button type="submit" class="demo-button auth-form__submit">Войти</button>
+        </form>
+
+        <div class="auth-card__actions">
+            <button type="button" class="demo-secondary-link" onclick="open_modal('editPassword')">Сбросить пароль</button>
+            <a href="{{ url_for('register_page') }}" class="demo-secondary-link">Создать аккаунт</a>
+        </div>
+    </section>
+</section>
+
+<div id="editPassword" class="modal profile-modal">
+    <div class="modal-content profile-modal__content">
+        <button class="modal-close" onclick="close_modal('editPassword')">&times;</button>
+        <form action="/edit/reset_password" method="post" class="profile-modal__form">
+            <h3>Сброс пароля</h3>
+
+            <label class="profile-modal__field">
+                <span>Адрес электронной почты</span>
+                <input type="email" name="email" autocomplete="email">
+            </label>
+
+            <label class="profile-modal__field">
+                <span>Новый пароль</span>
+                <input type="password" name="new_pass" autocomplete="new-password">
+            </label>
+
+            <label class="profile-modal__field">
+                <span>Повторите новый пароль</span>
+                <input type="password" name="repeat_pass" autocomplete="new-password">
+            </label>
+
+            <button type="submit" class="demo-button">Сохранить</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

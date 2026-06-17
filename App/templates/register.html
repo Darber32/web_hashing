@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+<section class="auth-shell">
+    <aside class="auth-aside auth-aside--warm">
+        <p class="auth-aside__eyebrow">Регистрация</p>
+        <h1>Создайте аккаунт и сделайте практику по хешированию персональной</h1>
+        <p class="auth-aside__description">
+            После регистрации ваши результаты не будут исчезать при закрытии браузера. Вы сможете возвращаться к своим
+            экспериментам, продолжать сравнение алгоритмов и работать в одном аккуратном пространстве.
+        </p>
+
+        <div class="auth-aside__list">
+            <article class="auth-aside__item">
+                <strong>Личный прогресс</strong>
+                <span>Все результаты демонстрации и сравнения будут доступны в вашем аккаунте.</span>
+            </article>
+            <article class="auth-aside__item">
+                <strong>Непрерывная практика</strong>
+                <span>Работа с алгоритмами останется привязанной к вашему профилю, а не к текущей вкладке.</span>
+            </article>
+            <article class="auth-aside__item">
+                <strong>Подготовка к расширению</strong>
+                <span>Архитектура сайта уже рассчитана на новые материалы, алгоритмы и административные сценарии.</span>
+            </article>
+        </div>
+    </aside>
+
+    <section class="auth-card">
+        <div class="auth-card__header">
+            <p class="auth-card__eyebrow">Новый аккаунт</p>
+            <h2>Зарегистрироваться</h2>
+            <p>Заполните несколько полей, чтобы сохранить результаты и получить полноценный доступ к возможностям сайта.</p>
+        </div>
+
+        {% if error %}
+        <div id="error-alert" class="error-alert">
+            {{ error }}
+            <button type="button" class="close-btn" onclick="close_error()">&times;</button>
+        </div>
+        {% endif %}
+
+        <form action="/auth/register" method="post" class="auth-form">
+            <label class="auth-form__field">
+                <span>Имя пользователя</span>
+                <input type="text" name="username" required value="{{ username | default('') }}" autocomplete="username">
+            </label>
+
+            <label class="auth-form__field">
+                <span>Email</span>
+                <input type="email" name="email" required value="{{ email | default('') }}" autocomplete="email">
+            </label>
+
+            <label class="auth-form__field">
+                <span>Пароль</span>
+                <input type="password" name="password" required autocomplete="new-password">
+            </label>
+
+            <button type="submit" class="demo-button auth-form__submit">Зарегистрироваться</button>
+        </form>
+
+        <div class="auth-card__footer">
+            <span>Уже есть аккаунт?</span>
+            <a href="{{ url_for('login_page') }}" class="demo-secondary-link">Войти</a>
+        </div>
+    </section>
+</section>
+{% endblock %}

@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<section class="demo-page profile-page">
+    <div class="demo-hero profile-hero">
+        <p class="demo-hero__eyebrow">Аккаунт</p>
+        <h1>Профиль пользователя</h1>
+        <p class="demo-hero__description">
+            Здесь можно просмотреть основные данные аккаунта, изменить имя пользователя, адрес электронной почты и пароль,
+            а также выйти из текущей сессии.
+        </p>
+        <div class="profile-hero__meta">
+            <span class="profile-hero__pill">Пользователь: {{ current_user.username }}</span>
+            <span class="profile-hero__pill">
+                {% if current_user.role == "admin" %}Роль: администратор{% else %}Роль: пользователь{% endif %}
+            </span>
+            <span class="profile-hero__pill">
+                {% if current_user.is_active %}Статус: активен{% else %}Статус: ожидает подтверждения{% endif %}
+            </span>
+        </div>
+    </div>
+
+    {% if error %}
+    <div id="error-alert" class="error-alert">
+        {{ error }}
+        <button type="button" class="close-btn" onclick="close_error()">&times;</button>
+    </div>
+    {% endif %}
+
+    <div class="profile-grid">
+        <section class="demo-summary-card profile-summary-card">
+            <h2>Основная информация</h2>
+
+            <div class="profile-data-list">
+                <div class="profile-data-item">
+                    <span class="profile-data-item__label">Имя пользователя</span>
+                    <strong class="profile-data-item__value">{{ current_user.username }}</strong>
+                </div>
+
+                <div class="profile-data-item">
+                    <span class="profile-data-item__label">Email</span>
+                    <strong class="profile-data-item__value">{{ current_user.email }}</strong>
+                </div>
+
+                <div class="profile-data-item">
+                    <span class="profile-data-item__label">Роль</span>
+                    <strong class="profile-data-item__value">
+                        {% if current_user.role == "admin" %}
+                        Администратор
+                        {% else %}
+                        Пользователь
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="profile-data-item">
+                    <span class="profile-data-item__label">Статус аккаунта</span>
+                    <strong class="profile-data-item__value">
+                        {% if current_user.is_active %}
+                        Активен
+                        {% else %}
+                        Ожидает подтверждения
+                        {% endif %}
+                    </strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="demo-panel profile-actions-panel">
+            <div class="demo-panel__header">
+                <h2>Управление профилем</h2>
+                <p>Выберите действие, которое хотите выполнить для текущего аккаунта.</p>
+            </div>
+
+            <div class="profile-action-list">
+                <article class="profile-action-card">
+                    <div>
+                        <h3>Изменить имя пользователя</h3>
+                        <p>Обновите отображаемое имя, которое используется в вашем аккаунте.</p>
+                    </div>
+                    <button type="button" class="demo-button" onclick="open_modal('editUsername')">
+                        Изменить имя
+                    </button>
+                </article>
+
+                <article class="profile-action-card">
+                    <div>
+                        <h3>Изменить адрес электронной почты</h3>
+                        <p>Укажите новый email, который будет привязан к аккаунту.</p>
+                    </div>
+                    <button type="button" class="demo-button" onclick="open_modal('editEmail')">
+                        Изменить email
+                    </button>
+                </article>
+
+                <article class="profile-action-card">
+                    <div>
+                        <h3>Изменить пароль</h3>
+                        <p>Задайте новый пароль для следующего входа в аккаунт.</p>
+                    </div>
+                    <button type="button" class="demo-button" onclick="open_modal('editPassword')">
+                        Изменить пароль
+                    </button>
+                </article>
+            </div>
+
+            <form action="/auth/logout" method="post" class="profile-logout-form">
+                <button type="submit" class="demo-delete-button">Выйти из аккаунта</button>
+            </form>
+        </section>
+    </div>
+
+    <div id="editUsername" class="modal profile-modal">
+        <div class="modal-content profile-modal__content">
+            <button class="modal-close" onclick="close_modal('editUsername')">&times;</button>
+            <form action="/edit/username" method="post" class="profile-modal__form">
+                <h3>Изменение имени пользователя</h3>
+
+                <label class="profile-modal__field">
+                    <span>Новое имя</span>
+                    <input type="text" name="username">
+                </label>
+
+                <button type="submit" class="demo-button">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="editEmail" class="modal profile-modal">
+        <div class="modal-content profile-modal__content">
+            <button class="modal-close" onclick="close_modal('editEmail')">&times;</button>
+            <form action="/edit/email" method="post" class="profile-modal__form">
+                <h3>Изменение email</h3>
+
+                <label class="profile-modal__field">
+                    <span>Новый адрес электронной почты</span>
+                    <input type="email" name="email">
+                </label>
+
+                <button type="submit" class="demo-button">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="editPassword" class="modal profile-modal">
+        <div class="modal-content profile-modal__content">
+            <button class="modal-close" onclick="close_modal('editPassword')">&times;</button>
+            <form action="/edit/password" method="post" class="profile-modal__form">
+                <h3>Изменение пароля</h3>
+
+                <label class="profile-modal__field">
+                    <span>Старый пароль</span>
+                    <input type="password" name="old_pass">
+                </label>
+
+                <label class="profile-modal__field">
+                    <span>Новый пароль</span>
+                    <input type="password" name="new_pass">
+                </label>
+
+                <label class="profile-modal__field">
+                    <span>Повторите новый пароль</span>
+                    <input type="password" name="repeat_pass">
+                </label>
+
+                <button type="submit" class="demo-button">Сохранить</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

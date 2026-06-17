@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% macro page_link(target_page, pages) -%}
+    {%- if pages and target_page.id == pages[0].id -%}
+        {{- url_for('education') -}}
+    {%- else -%}
+        {{- url_for('education_page', page_slug=target_page.slug) -}}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro render_section(section) %}
+<details class="education-section">
+    <summary class="education-section__summary">
+        <span class="education-section__title">{{ section.title }}</span>
+        {% if section.summary %}
+        <span class="education-section__summary-text">{{ section.summary }}</span>
+        {% endif %}
+    </summary>
+
+    <div class="education-section__body">
+        {% if section.content %}
+        <div class="education-section__content">{{ section.content }}</div>
+        {% endif %}
+
+        {% if section.children %}
+        <div class="education-section__children">
+            {% for child in section.children %}
+            {{ render_section(child) }}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</details>
+{% endmacro %}
+
+{% block title %}{{ page.title if page else "Обучение" }}{% endblock %}
+
+{% block content %}
+<section class="education-page">
+    <div class="education-page__intro">
+        <p class="education-page__eyebrow">Теория</p>
+        <h1>{{ page.title if page else "Обучение по хешированию" }}</h1>
+        <p class="education-page__description">
+            {{ page.description if page else "Материалы пока не опубликованы." }}
+        </p>
+    </div>
+
+    {% if pages %}
+    <nav class="education-page-switcher" aria-label="Переключение страниц обучения">
+        {% for nav_page in pages %}
+        <a
+            href="{{ page_link(nav_page, pages) }}"
+            class="education-page-switcher__item {% if page and nav_page.id == page.id %}is-active{% endif %}"
+        >
+            {{ nav_page.title }}
+        </a>
+        {% endfor %}
+    </nav>
+    {% endif %}
+
+    {% if sections %}
+    <div class="education-page__list">
+        {% for section in sections %}
+        {{ render_section(section) }}
+        {% endfor %}
+    </div>
+
+    {% if previous_page or next_page %}
+    <div class="education-page-pagination">
+        {% if previous_page %}
+        <a href="{{ page_link(previous_page, pages) }}" class="education-page-pagination__link">
+            &larr; {{ previous_page.title }}
+        </a>
+        {% else %}
+        <span class="education-page-pagination__spacer"></span>
+        {% endif %}
+
+        {% if next_page %}
+        <a
+            href="{{ page_link(next_page, pages) }}"
+            class="education-page-pagination__link education-page-pagination__link--next"
+        >
+            {{ next_page.title }} &rarr;
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="education-empty-state">
+        Учебные материалы пока не заполнены.
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

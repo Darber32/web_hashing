@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<section class="demo-page home-page">
+    <div class="demo-hero home-hero">
+        <div class="home-hero__grid">
+            <div class="home-hero__content">
+                <p class="demo-hero__eyebrow">Hash Learning</p>
+                <h1>Изучение хеш-функций в одном удобном пространстве</h1>
+                <p class="demo-hero__description">
+                    Этот сайт создан для изучения хеш-функций.
+                </p>
+                <p class="demo-hero__description">
+                    Здесь вы сможете:
+                </p>
+                <ul class="home-hero__bullet-list">
+                    <li>изучить теорию хеш-функций</li>
+                    <li>посмотреть, как они работают</li>
+                    <li>сравнить разные алгоритмы хеширования</li>
+                </ul>
+
+                <div class="home-hero__actions">
+                    <a href="{{ url_for('education') }}" class="demo-button">Изучить теорию</a>
+                    <a href="{{ url_for('demo') }}" class="demo-secondary-link">Открыть демонстрацию</a>
+                    <a href="{{ url_for('compare') }}" class="demo-secondary-link">Перейти к сравнению</a>
+                </div>
+            </div>
+
+            <div class="home-hero__metrics">
+                <article class="home-metric-card">
+                    <strong>Теория</strong>
+                    <span>Материалы по основам хеширования, алгоритмам и методам разрешения коллизий.</span>
+                </article>
+                <article class="home-metric-card">
+                    <strong>Демонстрация</strong>
+                    <span>Пошаговая работа с сообщением, хешем и состоянием таблицы в одном интерфейсе.</span>
+                </article>
+                <article class="home-metric-card">
+                    <strong>Сравнение</strong>
+                    <span>Несколько алгоритмов на одном сообщении с отдельными пояснениями для каждого результата.</span>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <section class="demo-panel home-intro-panel">
+        <div class="demo-panel__header">
+            <h2>Что можно сделать на сайте</h2>
+            <p>
+                Сайт построен как учебная площадка: сначала можно познакомиться с базовой теорией, затем посмотреть пошаговую
+                работу алгоритмов и после этого сравнить несколько хеш-функций в одинаковых условиях.
+            </p>
+        </div>
+
+        <div class="home-feature-grid">
+            <article class="home-feature-card">
+                <p class="home-feature-card__eyebrow">Шаг 1</p>
+                <h3>Изучить теорию хеш-функций</h3>
+                <p>
+                    В разделе обучения собраны материалы о назначении хеширования, доступных алгоритмах и методах разрешения коллизий.
+                </p>
+                <a href="{{ url_for('education') }}" class="demo-secondary-link">Открыть обучение</a>
+            </article>
+
+            <article class="home-feature-card">
+                <p class="home-feature-card__eyebrow">Шаг 2</p>
+                <h3>Посмотреть, как они работают</h3>
+                <p>
+                    В демонстрации можно выбрать алгоритм и метод разрешения коллизий, ввести сообщение и увидеть, как формируется результат.
+                </p>
+                <a href="{{ url_for('demo') }}" class="demo-secondary-link">Перейти к демонстрации</a>
+            </article>
+
+            <article class="home-feature-card">
+                <p class="home-feature-card__eyebrow">Шаг 3</p>
+                <h3>Сравнить разные алгоритмы</h3>
+                <p>
+                    На странице сравнения одно и то же сообщение обрабатывается несколькими хеш-функциями, что помогает увидеть различия между ними.
+                </p>
+                <a href="{{ url_for('compare') }}" class="demo-secondary-link">Открыть сравнение</a>
+            </article>
+        </div>
+    </section>
+
+    <div class="demo-summary-grid home-summary-grid">
+        <article class="demo-summary-card">
+            <h2>Обучение</h2>
+            <p>
+                Теоретический раздел помогает быстро понять, что такое хеширование, зачем оно нужно и какие алгоритмы доступны на сайте.
+            </p>
+        </article>
+
+        <article class="demo-summary-card">
+            <h2>Практика</h2>
+            <p>
+                Демонстрация показывает работу хеш-функций на пользовательском сообщении и позволяет увидеть поведение алгоритма в прикладном виде.
+            </p>
+        </article>
+
+        <article class="demo-summary-card demo-summary-card--wide">
+            <h2>Сравнение в одном интерфейсе</h2>
+            <p>
+                Все основные разделы связаны между собой: сначала теория, затем практика, после чего сравнение нескольких алгоритмов на одинаковом входном сообщении.
+            </p>
+        </article>
+    </div>
+</section>
+{% endblock %}

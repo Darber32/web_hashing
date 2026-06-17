@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title if title else "Страница" }}{% endblock %}
+
+{% block content %}
+<section class="demo-page">
+    <div class="demo-hero">
+        <p class="demo-hero__eyebrow">Раздел в разработке</p>
+        <h1>{{ title if title else "Заголовок" }}</h1>
+        <p class="demo-hero__description">
+            {% if current_user.is_authenticated %}
+                Привет, {{ current_user.username }}!
+                {% if current_user.role == "admin" %}
+                Сейчас вы просматриваете временную страницу административного раздела.
+                {% else %}
+                Сейчас вы просматриваете временную страницу пользовательского раздела.
+                {% endif %}
+            {% else %}
+                Этот раздел пока находится в разработке. После авторизации здесь будет доступен дополнительный функционал.
+            {% endif %}
+        </p>
+    </div>
+
+    <section class="demo-panel">
+        <div class="demo-panel__header">
+            <h2>Что происходит сейчас</h2>
+            <p>Содержимое этой страницы ещё не заполнено, но она уже встроена в общий современный интерфейс сайта.</p>
+        </div>
+        <div class="education-empty-state">
+            Раздел пока является заглушкой. Его можно развивать дальше без отдельной переработки шаблона.
+        </div>
+    </section>
+</section>
+{% endblock %}

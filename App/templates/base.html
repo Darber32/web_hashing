@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#eef2f7" id="theme-color-meta">
+    <meta name="color-scheme" content="light dark">
+    <title>{% block title %}Hash Learning{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        (function(){
+            try{
+                const storedTheme = localStorage.getItem("hash-theme");
+                const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+                const theme = storedTheme || preferredTheme;
+                document.documentElement.setAttribute("data-theme", theme);
+                document.documentElement.style.colorScheme = theme === "dark" ? "dark" : "light";
+            }catch(error){
+                document.documentElement.setAttribute("data-theme", "light");
+                document.documentElement.style.colorScheme = "light";
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    <script src="{{ url_for('static', path='js/script.js') }}" defer></script>
+</head>
+<body class="site-body">
+
+<div class="site-shell">
+    {% include "header.html" %}
+
+    <main class="container site-main">
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+</body>
+</html>

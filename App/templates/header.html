@@ -1,0 +1,90 @@
+<header class="site-header">
+    <nav class="navbar" aria-label="Основная навигация">
+        <a href="{{ url_for('index') }}" class="navbar__brand" aria-label="Hash Learning">
+            <span class="navbar__brand-mark">HL</span>
+            <span class="navbar__brand-copy">
+                <span class="navbar__brand-title">Hash Learning</span>
+                <span class="navbar__brand-subtitle">Теория, демонстрация и сравнение алгоритмов</span>
+            </span>
+        </a>
+
+        <div class="navbar__actions">
+            <button
+                type="button"
+                class="navbar__theme-toggle"
+                onclick="toggle_theme()"
+                aria-pressed="false"
+                aria-label="Переключить тему"
+            >
+                <span class="navbar__theme-indicator" aria-hidden="true"></span>
+                <span class="navbar__theme-label" data-theme-label>Тема</span>
+            </button>
+
+            <button
+                type="button"
+                class="navbar__toggle"
+                onclick="toggle_navbar()"
+                aria-controls="navbar-menu"
+                aria-expanded="false"
+            >
+                Меню
+            </button>
+        </div>
+
+        <div class="navbar__menu" id="navbar-menu">
+            <ul class="navbar__links">
+                <li>
+                    <a href="{{ url_for('index') }}" class="navbar__link {% if request.endpoint == 'index' %}is-active{% endif %}">
+                        Главная
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ url_for('education') }}" class="navbar__link {% if request.endpoint in ['education', 'education_page'] %}is-active{% endif %}">
+                        Обучение
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ url_for('demo') }}" class="navbar__link {% if request.endpoint in ['demo', 'demo_workspace', 'demo_add', 'demo_delete'] %}is-active{% endif %}">
+                        Демонстрация
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ url_for('compare') }}" class="navbar__link {% if request.endpoint in ['compare', 'compare_workspace', 'compare_add', 'compare_delete'] %}is-active{% endif %}">
+                        Сравнение
+                    </a>
+                </li>
+
+                {% if current_user.is_authenticated %}
+                    {% if current_user.role == "admin" %}
+                    <li>
+                        <a href="{{ url_for('admin') }}" class="navbar__link navbar__link--compact {% if request.endpoint in ['admin', 'admin_hash_functions', 'admin_toggle_hash_function', 'admin_update_hash_function_order', 'admin_collision_methods', 'admin_toggle_collision_method', 'admin_update_collision_method_order', 'admin_pages', 'admin_new_page', 'admin_edit_page', 'admin_create_page', 'admin_update_page', 'admin_delete_page', 'admin_articles', 'admin_new_section', 'admin_edit_section', 'admin_create_section', 'admin_update_section', 'admin_delete_section'] %}is-active{% endif %}">
+                            Панель администратора
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <li>
+                        <a href="{{ url_for('profile') }}" class="navbar__link navbar__link--accent {% if request.endpoint == 'profile' %}is-active{% endif %}">
+                            Профиль
+                        </a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="{{ url_for('login_page') }}" class="navbar__link {% if request.endpoint == 'login_page' %}is-active{% endif %}">
+                            Вход
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ url_for('register_page') }}" class="navbar__link navbar__link--accent {% if request.endpoint == 'register_page' %}is-active{% endif %}">
+                            Регистрация
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+</header>

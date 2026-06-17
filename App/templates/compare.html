@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Сравнение хеш-функций{% endblock %}
+
+{% block content %}
+<section class="demo-page">
+    <div class="demo-hero">
+        <p class="demo-hero__eyebrow">Сравнение</p>
+        <h1>Сравнение хеш-функций на одном сообщении</h1>
+        <p class="demo-hero__description">
+            Выберите две или больше доступных хеш-функций и один метод разрешения коллизий.
+            После этого вы сможете вводить сообщения и получать сразу несколько дайджестов в одной строке таблицы,
+            а также отдельное подробное пояснение по каждой выбранной функции и по тому, как выбранный метод
+            обрабатывает коллизии.
+        </p>
+    </div>
+
+    {% if error %}
+    <div class="error-alert">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="demo-storage-note {% if is_guest_compare %}demo-storage-note--guest{% else %}demo-storage-note--user{% endif %}">
+        {% if is_guest_compare %}
+        Вы сейчас работаете как гость. Результаты сравнения будут храниться только до выхода со страницы рабочей области и затем очистятся автоматически.
+        {% else %}
+        Вы авторизованы, поэтому результаты сравнения будут сохраняться в вашем аккаунте и останутся доступны при следующем входе.
+        {% endif %}
+    </div>
+
+    {% if has_available_choices %}
+    <form action="{{ url_for('compare_workspace') }}" method="get" class="demo-selector">
+        <div class="demo-selector__section">
+            <div class="demo-selector__header">
+                <h2>Выбор хеш-функций</h2>
+                <p>
+                    Для перехода к рабочей области нужно выбрать минимум две функции.
+                    Все варианты загружаются из включённых записей справочника в базе данных.
+                </p>
+            </div>
+
+            <div class="demo-option-grid">
+                {% for item in hash_functions %}
+                <label class="demo-option-card">
+                    <input
+                        class="demo-option-card__input"
+                        type="checkbox"
+                        name="hash_function"
+                        value="{{ item.value }}"
+                        {% if item.value in selected_hash_functions %}checked{% endif %}
+                    >
+                    <span class="demo-option-card__body">
+                        <span class="demo-option-card__title">{{ item.label }}</span>
+                        <span class="demo-option-card__text">{{ item.description }}</span>
+                    </span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="demo-selector__section">
+            <div class="demo-selector__header">
+                <h2>Выбор метода разрешения коллизий</h2>
+                <p>
+                    Для всех выбранных хеш-функций используется один общий метод разрешения коллизий.
+                    Это позволяет сравнивать не только сами дайджесты, но и поведение разных алгоритмов в одинаковых условиях.
+                </p>
+            </div>
+
+            <div class="demo-option-grid demo-option-grid--compact">
+                {% for item in collision_methods %}
+                <label class="demo-option-card">
+                    <input
+                        class="demo-option-card__input"
+                        type="radio"
+                        name="collision_method"
+                        value="{{ item.value }}"
+                        {% if item.value == selected_collision_method %}checked{% endif %}
+                    >
+                    <span class="demo-option-card__body">
+                        <span class="demo-option-card__title">{{ item.label }}</span>
+                        <span class="demo-option-card__text">{{ item.description }}</span>
+                    </span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="demo-selector__actions">
+            <button type="submit" class="demo-button">Открыть сравнение</button>
+        </div>
+    </form>
+    {% else %}
+    <div class="education-empty-state">
+        Сейчас доступно меньше двух хеш-функций или не включён ни один метод разрешения коллизий.
+        Для страницы сравнения администратор должен активировать как минимум две функции и один метод в справочниках базы данных.
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

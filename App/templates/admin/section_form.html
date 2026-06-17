@@ -1,0 +1,110 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+{% if form_mode == 'create' %}
+<section class="demo-panel admin-panel">
+    <div class="demo-panel__header admin-panel__header">
+        <h2>Выбор страницы</h2>
+        <p>Сначала выберите страницу, внутри которой будет создана новая статья. От этого зависит доступный список родительских статей.</p>
+    </div>
+
+    <form action="{{ url_for('admin_new_section') }}" method="get" class="admin-form admin-form--grid">
+        <label class="admin-field">
+            <span>Страница</span>
+            <select name="page_id">
+                {% for option in available_pages %}
+                <option value="{{ option.id }}" {% if option.id == selected_page.id %}selected{% endif %}>
+                    {{ option.title }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <div class="admin-actions admin-actions--full">
+            <button type="submit" class="admin-secondary-button">Открыть страницу</button>
+        </div>
+    </form>
+</section>
+{% endif %}
+
+<section class="demo-panel admin-panel">
+    <div class="demo-panel__header admin-panel__header admin-panel__header--row">
+        <div>
+            <h2>{% if form_mode == 'create' %}Создание статьи{% else %}Редактирование статьи{% endif %}</h2>
+            <p>
+                Страница: <strong>{{ selected_page.title }}</strong>
+                (<code>{{ selected_page.slug }}</code>)
+            </p>
+        </div>
+        <div class="admin-actions">
+            <a href="{{ url_for('admin_articles') }}" class="admin-secondary-button">К списку статей</a>
+            <a href="{{ url_for('admin_edit_page', page_id=selected_page.id) }}" class="admin-secondary-button">Открыть страницу</a>
+        </div>
+    </div>
+
+    <form action="{% if form_mode == 'create' %}{{ url_for('admin_create_section') }}{% else %}{{ url_for('admin_update_section', section_id=section.id) }}{% endif %}" method="post" class="admin-form admin-form--grid">
+        {% if form_mode == 'create' %}
+        <input type="hidden" name="page_id" value="{{ selected_page.id }}">
+        {% endif %}
+
+        <label class="admin-field">
+            <span>Заголовок</span>
+            <input type="text" name="title" value="{{ section.title }}" placeholder="Например: SHA-256">
+        </label>
+
+        <label class="admin-field">
+            <span>Строка-идентификатор</span>
+            <input type="text" name="slug" value="{{ section.slug }}" placeholder="sha-256">
+        </label>
+
+        <label class="admin-field">
+            <span>Порядок</span>
+            <input type="number" name="sort_order" value="{{ section.sort_order }}">
+        </label>
+
+        <label class="admin-field">
+            <span>Родительская статья</span>
+            <select name="parent_id">
+                <option value="">Без родителя</option>
+                {% for option in parent_options %}
+                <option value="{{ option.section.id }}" {% if option.section.id == section.parent_id %}selected{% endif %}>
+                    {{ "|-- " * option.depth }}{{ option.section.title }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label class="admin-field admin-field--checkbox">
+            <input type="checkbox" name="is_published" {% if section.is_published %}checked{% endif %}>
+            <span>Показывать статью пользователям</span>
+        </label>
+
+        <div class="admin-field">
+            <span>Текущая страница</span>
+            <div class="admin-readonly">{{ selected_page.title }}</div>
+        </div>
+
+        <label class="admin-field admin-field--full">
+            <span>Краткое описание</span>
+            <textarea name="summary" rows="3" placeholder="Короткий анонс статьи">{{ section.summary or "" }}</textarea>
+        </label>
+
+        <label class="admin-field admin-field--full">
+            <span>Содержимое</span>
+            <textarea name="content" rows="10" placeholder="Основной текст статьи">{{ section.content or "" }}</textarea>
+        </label>
+
+        <div class="admin-actions admin-actions--full">
+            <button type="submit" class="demo-button">
+                {% if form_mode == 'create' %}Создать статью{% else %}Сохранить изменения{% endif %}
+            </button>
+        </div>
+    </form>
+
+    {% if form_mode == 'edit' %}
+    <form action="{{ url_for('admin_delete_section', section_id=section.id) }}" method="post" class="admin-inline-form">
+        <button type="submit" class="demo-delete-button">Удалить статью</button>
+    </form>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Демонстрация: {{ hash_function_info.label }}{% endblock %}
+
+{% block content %}
+<section class="demo-page demo-page--workspace">
+    <div class="demo-hero demo-hero--workspace">
+        <div>
+            <p class="demo-hero__eyebrow">Рабочая область</p>
+            <h1>{{ hash_function_info.label }} + {{ collision_method_info.label }}</h1>
+            <p class="demo-hero__description">
+                Введите сообщение, чтобы вычислить хеш, поместить запись в демонстрационную таблицу
+                и получить подробное пояснение: как выбранный алгоритм сформировал итоговый дайджест
+                и как метод разрешения коллизий обработал размещение записи.
+            </p>
+        </div>
+
+        <a
+            class="demo-secondary-link"
+            href="{{ url_for('demo') }}?hash_function={{ hash_function }}&collision_method={{ collision_method }}"
+        >
+            Изменить параметры
+        </a>
+    </div>
+
+    <div class="demo-summary-grid">
+        <article class="demo-summary-card">
+            <h2>{{ hash_function_info.label }}</h2>
+            <p>{{ hash_function_info.description }}</p>
+        </article>
+
+        <article class="demo-summary-card">
+            <h2>{{ collision_method_info.label }}</h2>
+            <p>{{ collision_method_info.description }}</p>
+        </article>
+    </div>
+
+    {% if error %}
+    <div class="error-alert">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    {% if success %}
+    <div class="success-alert">
+        {{ success }}
+    </div>
+    {% endif %}
+
+    <div class="demo-storage-note {% if is_guest_demo %}demo-storage-note--guest{% else %}demo-storage-note--user{% endif %}">
+        {% if is_guest_demo %}
+        Вы используете гостевой режим. Все результаты этой демонстрации будут автоматически удалены, как только вы покинете страницу или обновите её.
+        {% else %}
+        Вы авторизованы. Все добавленные сообщения и результаты хеширования сохраняются в вашем аккаунте и будут доступны позже.
+        {% endif %}
+    </div>
+
+    <div class="demo-workspace-stack">
+        <section class="demo-panel demo-panel--table-state">
+            <div class="demo-panel__header">
+                <h2>Добавить сообщение</h2>
+                <p>
+                    Сохраняется само сообщение и вычисленное значение хеш-функции.
+                    Подробное описание расчёта и разрешения коллизии формируется автоматически.
+                </p>
+            </div>
+
+            <form action="{{ url_for('demo_add') }}" method="post" class="demo-form" data-preserve-demo-session="true">
+                <input type="hidden" name="hash_function" value="{{ hash_function }}">
+                <input type="hidden" name="collision_method" value="{{ collision_method }}">
+
+                <label class="demo-form__field">
+                    <span>Сообщение</span>
+                    <textarea
+                        name="message"
+                        rows="4"
+                        placeholder="Введите сообщение для хеширования"
+                    ></textarea>
+                </label>
+
+                <button type="submit" class="demo-button">Вычислить хеш и сохранить</button>
+            </form>
+        </section>
+
+        <section class="demo-panel">
+            <div class="demo-panel__header">
+                <h2>Состояние таблицы</h2>
+                <p>
+                    Размер учебной таблицы: {{ table_size }} ячеек.
+                    {% if collision_method == "chaining" %}
+                    Каждая корзина показывает всю цепочку записей с одинаковым индексом.
+                    {% else %}
+                    В таблице отображается итоговая ячейка после последовательности пробирования.
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="demo-hash-grid">
+                {% if collision_method == "chaining" %}
+                    {% for bucket in table_state %}
+                    <article class="demo-slot">
+                        <div class="demo-slot__header">
+                            <span class="demo-slot__index">Корзина {{ bucket["index"] }}</span>
+                            <span class="demo-slot__count">{{ bucket["items"]|length }} записей</span>
+                        </div>
+
+                        {% if bucket["items"] %}
+                        <div class="demo-slot__items">
+                            {% for entry in bucket["items"] %}
+                            <div class="demo-slot__item">
+                                <strong>{{ entry.message }}</strong>
+                                <span>{{ entry.hash_value[:16] }}...</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="demo-slot__empty">Корзина пуста</div>
+                        {% endif %}
+                    </article>
+                    {% endfor %}
+                {% else %}
+                    {% for slot in table_state %}
+                    <article class="demo-slot">
+                        <div class="demo-slot__header">
+                            <span class="demo-slot__index">Ячейка {{ slot["index"] }}</span>
+                        </div>
+
+                        {% if slot["entry"] %}
+                        <div class="demo-slot__items">
+                            <div class="demo-slot__item">
+                                <strong>{{ slot["entry"].message }}</strong>
+                                <span>{{ slot["entry"].hash_value[:16] }}...</span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="demo-slot__empty">Свободно</div>
+                        {% endif %}
+                    </article>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </section>
+    </div>
+
+    <section class="demo-panel">
+        <div class="demo-panel__header">
+            <h2>Журнал сообщений</h2>
+            <p>
+                Для каждой записи показаны исходное сообщение, итоговый хеш, размещение в таблице
+                и подробное пояснение всех шагов: от подготовки входных данных до разрешения коллизии.
+            </p>
+        </div>
+
+        {% if entries %}
+        <div class="demo-table-wrap">
+            <table class="demo-table">
+                <thead>
+                    <tr>
+                        <th>Сообщение</th>
+                        <th>Хеш</th>
+                        <th>Размещение</th>
+                        <th>Подробное пояснение</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in entries %}
+                    <tr>
+                        <td class="demo-table__message">{{ entry.message }}</td>
+                        <td>
+                            <code class="demo-hash">{{ entry.hash_value }}</code>
+                        </td>
+                        <td>
+                            <div class="demo-placement">
+                                <span>Начальная ячейка: {{ entry.initial_slot }}</span>
+                                <span>Финальная ячейка: {{ entry.final_slot }}</span>
+                                {% if entry.chain_position is not none %}
+                                <span>Позиция в цепочке: {{ entry.chain_position + 1 }}</span>
+                                {% endif %}
+                                {% if entry.step_size %}
+                                <span>Шаг пробирования: {{ entry.step_size }}</span>
+                                {% endif %}
+                                <span>Количество повторных проб: {{ entry.probe_count }}</span>
+                                <span class="demo-status {% if entry.collision_detected %}demo-status--collision{% endif %}">
+                                    {% if entry.collision_detected %}
+                                    Коллизия обнаружена
+                                    {% else %}
+                                    Коллизий нет
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="demo-notes">
+                                <div class="demo-note-block">
+                                    <strong>Как получен хеш</strong>
+                                    <p>{{ entry.process_note }}</p>
+                                </div>
+                                <div class="demo-note-block">
+                                    <strong>Как разрешена коллизия</strong>
+                                    <p>{{ entry.collision_note }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <form action="{{ url_for('demo_delete', entry_id=entry.id) }}" method="post" data-preserve-demo-session="true">
+                                <input type="hidden" name="hash_function" value="{{ hash_function }}">
+                                <input type="hidden" name="collision_method" value="{{ collision_method }}">
+                                <button type="submit" class="demo-delete-button">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="education-empty-state">
+            Пока нет ни одного сообщения. Добавьте первое сообщение, чтобы увидеть итоговый хеш,
+            подробное пояснение вычисления и работу выбранного метода разрешения коллизий.
+        </div>
+        {% endif %}
+    </section>
+</section>
+{% if is_guest_demo %}
+<script>
+(() => {
+    let preserveDemoSession = false;
+
+    document.querySelectorAll("[data-preserve-demo-session='true']").forEach((form) => {
+        form.addEventListener("submit", () => {
+            preserveDemoSession = true;
+        });
+    });
+
+    window.addEventListener("pagehide", () => {
+        if (preserveDemoSession) {
+            return;
+        }
+
+        navigator.sendBeacon("{{ url_for('demo_clear') }}", new URLSearchParams());
+    });
+})();
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<section class="demo-panel admin-panel">
+    <div class="demo-panel__header admin-panel__header admin-panel__header--row">
+        <div>
+            <h2>{% if form_mode == 'create' %}Создание страницы{% else %}Основные параметры{% endif %}</h2>
+            <p>
+                {% if form_mode == 'create' %}
+                После сохранения страницу можно будет наполнить статьями и включить в общую навигацию обучения.
+                {% else %}
+                Изменения применяются к странице целиком: заголовок, порядок, публикация и описание.
+                {% endif %}
+            </p>
+        </div>
+        <div class="admin-actions">
+            <a href="{{ url_for('admin_pages') }}" class="admin-secondary-button">К списку страниц</a>
+            {% if form_mode == 'edit' %}
+            <a href="{{ url_for('admin_new_section') }}?page_id={{ page.id }}" class="demo-button">Добавить статью</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if form_mode == 'edit' %}
+    <div class="admin-meta-list">
+        <span class="admin-meta-pill">ID: {{ page.id }}</span>
+        <span class="admin-meta-pill">Статей: {{ section_count }}</span>
+        <span class="admin-meta-pill">Опубликовано статей: {{ published_section_count }}</span>
+    </div>
+    {% endif %}
+
+    <form action="{% if form_mode == 'create' %}{{ url_for('admin_create_page') }}{% else %}{{ url_for('admin_update_page', page_id=page.id) }}{% endif %}" method="post" class="admin-form admin-form--grid">
+        <label class="admin-field">
+            <span>Заголовок</span>
+            <input type="text" name="title" value="{{ page.title }}" placeholder="Например: Практика хеширования">
+        </label>
+
+        <label class="admin-field">
+            <span>Строка-идентификатор</span>
+            <input type="text" name="slug" value="{{ page.slug }}" placeholder="practice-hashing">
+        </label>
+
+        <label class="admin-field">
+            <span>Порядок</span>
+            <input type="number" name="sort_order" value="{{ page.sort_order }}">
+        </label>
+
+        <label class="admin-field admin-field--checkbox admin-field--full">
+            <input type="checkbox" name="is_published" {% if page.is_published %}checked{% endif %}>
+            <span>Показывать страницу пользователям</span>
+        </label>
+
+        <label class="admin-field admin-field--full">
+            <span>Описание</span>
+            <textarea name="description" rows="4" placeholder="Краткое описание страницы обучения">{{ page.description or "" }}</textarea>
+        </label>
+
+        <div class="admin-actions admin-actions--full">
+            <button type="submit" class="demo-button">
+                {% if form_mode == 'create' %}Создать страницу{% else %}Сохранить изменения{% endif %}
+            </button>
+        </div>
+    </form>
+
+    {% if form_mode == 'edit' %}
+    <form action="{{ url_for('admin_delete_page', page_id=page.id) }}" method="post" class="admin-inline-form">
+        <button type="submit" class="demo-delete-button">Удалить страницу</button>
+    </form>
+    {% endif %}
+</section>
+{% endblock %}

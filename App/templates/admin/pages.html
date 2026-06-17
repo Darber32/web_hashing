@@ -1,0 +1,52 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<section class="demo-panel admin-panel">
+    <div class="demo-panel__header admin-panel__header admin-panel__header--row">
+        <div>
+            <h2>Список страниц</h2>
+            <p>Страницы управляют верхним уровнем учебного раздела. Внутри каждой из них можно строить собственную структуру статей.</p>
+        </div>
+        <a href="{{ url_for('admin_new_page') }}" class="demo-button">Добавить страницу</a>
+    </div>
+
+    {% if pages %}
+    <div class="admin-page-list">
+        {% for page in pages %}
+        <article class="admin-item">
+            <div class="admin-item__header">
+                <div>
+                    <h3>{{ page.title }}</h3>
+                    <p><code>{{ page.slug }}</code></p>
+                    <p>
+                        Всего статей: {{ section_counts_by_page.get(page.id, 0) }}
+                        | Опубликовано: {{ published_section_counts_by_page.get(page.id, 0) }}
+                        | Порядок: {{ page.sort_order }}
+                    </p>
+                    {% if page.description %}
+                    <p>{{ page.description }}</p>
+                    {% endif %}
+                </div>
+                <span class="admin-status-badge {% if page.is_published %}admin-status-badge--enabled{% else %}admin-status-badge--disabled{% endif %}">
+                    {% if page.is_published %}Опубликована{% else %}Скрыта{% endif %}
+                </span>
+            </div>
+
+            <div class="admin-actions">
+                <a href="{{ url_for('admin_edit_page', page_id=page.id) }}" class="demo-button">Редактировать</a>
+                <a href="{{ url_for('admin_new_section') }}?page_id={{ page.id }}" class="admin-secondary-button">Добавить статью</a>
+                <a href="{{ url_for('admin_articles') }}" class="admin-secondary-button">К статьям</a>
+                <form action="{{ url_for('admin_delete_page', page_id=page.id) }}" method="post" class="admin-inline-form">
+                    <button type="submit" class="demo-delete-button">Удалить</button>
+                </form>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="education-empty-state">
+        Пока не создано ни одной страницы обучения.
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

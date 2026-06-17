@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Панель администратора{% endblock %}
+
+{% block content %}
+<section class="demo-page admin-page">
+    <div class="demo-hero admin-hero">
+        <p class="demo-hero__eyebrow admin-hero__eyebrow">Управление</p>
+        <h1>{{ admin_title }}</h1>
+        <p class="demo-hero__description admin-hero__description">{{ admin_description }}</p>
+    </div>
+
+    <nav class="education-page-switcher admin-tabs" aria-label="Разделы админки">
+        <a href="{{ url_for('admin_hash_functions') }}" class="education-page-switcher__item admin-tabs__link {% if admin_section == 'hash-functions' %}is-active{% endif %}">
+            Хеш-функции
+        </a>
+        <a href="{{ url_for('admin_collision_methods') }}" class="education-page-switcher__item admin-tabs__link {% if admin_section == 'collision-methods' %}is-active{% endif %}">
+            Методы коллизий
+        </a>
+        <a href="{{ url_for('admin_pages') }}" class="education-page-switcher__item admin-tabs__link {% if admin_section == 'pages' %}is-active{% endif %}">
+            Страницы
+        </a>
+        <a href="{{ url_for('admin_articles') }}" class="education-page-switcher__item admin-tabs__link {% if admin_section == 'articles' %}is-active{% endif %}">
+            Статьи
+        </a>
+    </nav>
+
+    {% if error %}
+    <div class="error-alert">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    {% if success %}
+    <div class="success-alert">
+        {{ success }}
+    </div>
+    {% endif %}
+
+    {% block admin_content %}{% endblock %}
+</section>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<section class="demo-panel admin-panel">
+    <div class="demo-panel__header admin-panel__header admin-panel__header--row">
+        <div>
+            <h2>Список статей</h2>
+            <p>Статьи отображаются в иерархическом порядке: сначала родитель, затем все его дочерние материалы, отсортированные внутри своей ветки.</p>
+        </div>
+        {% if has_pages %}
+        <a href="{{ url_for('admin_new_section') }}" class="demo-button">Добавить статью</a>
+        {% else %}
+        <a href="{{ url_for('admin_new_page') }}" class="demo-button">Сначала создать страницу</a>
+        {% endif %}
+    </div>
+
+    {% if has_pages %}
+    <div class="admin-page-list">
+        {% for group in article_groups %}
+        <details class="admin-item admin-page-group">
+            <summary class="admin-page-group__summary">
+                <div class="admin-page-group__summary-main">
+                    <h3>{{ group.page.title }}</h3>
+                    <p><code>{{ group.page.slug }}</code></p>
+                    {% if group.page.description %}
+                    <p>{{ group.page.description }}</p>
+                    {% endif %}
+                </div>
+                <span class="admin-page-group__count">Статей: {{ group.sections | length }}</span>
+            </summary>
+
+            <div class="admin-page-group__body">
+                <div class="admin-actions">
+                    <a href="{{ url_for('admin_new_section') }}?page_id={{ group.page.id }}" class="demo-button">Добавить статью</a>
+                    <a href="{{ url_for('admin_edit_page', page_id=group.page.id) }}" class="admin-secondary-button">Открыть страницу</a>
+                </div>
+
+                {% if group.sections %}
+                <div class="admin-section-list">
+                    {% for item in group.sections %}
+                    <article class="admin-subitem admin-tree-item {% if item.depth == 0 %}admin-tree-item--root{% endif %}" style="--admin-depth: {{ item.depth }};">
+                        <div class="admin-subitem__header">
+                            <div>
+                                <h5>{{ item.section.title }}</h5>
+                                <p>
+                                    <code>{{ item.section.slug }}</code>
+                                    | Порядок: {{ item.section.sort_order }}
+                                    {% if item.parent_title %}
+                                    | Родитель: {{ item.parent_title }}
+                                    {% else %}
+                                    | Корневая статья
+                                    {% endif %}
+                                </p>
+                                {% if item.section.summary %}
+                                <p>{{ item.section.summary }}</p>
+                                {% endif %}
+                            </div>
+                            <span class="admin-status-badge {% if item.section.is_published %}admin-status-badge--enabled{% else %}admin-status-badge--disabled{% endif %}">
+                                {% if item.section.is_published %}Опубликована{% else %}Скрыта{% endif %}
+                            </span>
+                        </div>
+
+                        <div class="admin-actions">
+                            <a href="{{ url_for('admin_edit_section', section_id=item.section.id) }}" class="admin-secondary-button">Редактировать</a>
+                            <form action="{{ url_for('admin_delete_section', section_id=item.section.id) }}" method="post" class="admin-inline-form">
+                                <button type="submit" class="demo-delete-button">Удалить</button>
+                            </form>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="education-empty-state">
+                    У этой страницы пока нет статей.
+                </div>
+                {% endif %}
+            </div>
+        </details>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="education-empty-state">
+        Пока нет ни одной страницы обучения, поэтому статьи добавлять некуда.
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

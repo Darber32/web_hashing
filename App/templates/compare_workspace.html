@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Сравнение хеш-функций{% endblock %}
+
+{% block content %}
+<section class="demo-page demo-page--workspace">
+    <div class="demo-hero demo-hero--workspace">
+        <div>
+            <p class="demo-hero__eyebrow">Рабочая область</p>
+            <h1>Сравнение выбранных хеш-функций</h1>
+            <p class="demo-hero__description">
+                Введите одно сообщение, чтобы все выбранные функции параллельно вычислили его дайджест.
+                Каждая строка журнала ниже показывает весь набор результатов и отдельные пояснения по каждой функции,
+                включая то, как выбранный метод разрешения коллизий обработал размещение записи.
+            </p>
+        </div>
+
+        <a
+            class="demo-secondary-link"
+            href="{{ url_for('compare') }}?{% for code in selected_hash_functions %}hash_function={{ code }}&{% endfor %}collision_method={{ selected_collision_method }}"
+        >
+            Изменить набор функций
+        </a>
+    </div>
+
+    <div class="demo-summary-grid">
+        <article class="demo-summary-card demo-summary-card--wide">
+            <h2>Выбранные функции</h2>
+            <div class="compare-pill-list">
+                {% for item in hash_functions_info %}
+                <span class="compare-pill">{{ item.label }}</span>
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="demo-summary-card">
+            <h2>Метод коллизий</h2>
+            <p><strong>{{ collision_method_info.label }}</strong></p>
+            <p>{{ collision_method_info.description }}</p>
+        </article>
+    </div>
+
+    {% if error %}
+    <div class="error-alert">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    {% if success %}
+    <div class="success-alert">
+        {{ success }}
+    </div>
+    {% endif %}
+
+    <div class="demo-storage-note {% if is_guest_compare %}demo-storage-note--guest{% else %}demo-storage-note--user{% endif %}">
+        {% if is_guest_compare %}
+        Вы используете гостевой режим. Все результаты сравнения будут автоматически удалены, как только вы покинете страницу или обновите её.
+        {% else %}
+        Вы авторизованы. Все добавленные результаты сравнения сохраняются в вашем аккаунте и будут доступны позже.
+        {% endif %}
+    </div>
+
+    <div class="demo-workspace-stack">
+        <section class="demo-panel compare-state-panel">
+            <div class="demo-panel__header">
+                <h2>Добавить сообщение для сравнения</h2>
+                <p>
+                    Одно сообщение будет обработано всеми выбранными функциями. Результаты попадут в одну строку таблицы,
+                    а пояснения будут сгруппированы по алгоритмам с учётом выбранного метода разрешения коллизий.
+                </p>
+            </div>
+
+            <form action="{{ url_for('compare_add') }}" method="post" class="demo-form" data-preserve-compare-session="true">
+                {% for code in selected_hash_functions %}
+                <input type="hidden" name="hash_function" value="{{ code }}">
+                {% endfor %}
+                <input type="hidden" name="collision_method" value="{{ selected_collision_method }}">
+
+                <label class="demo-form__field">
+                    <span>Сообщение</span>
+                    <textarea
+                        name="message"
+                        rows="4"
+                        placeholder="Введите сообщение для сравнения"
+                    ></textarea>
+                </label>
+
+                <button type="submit" class="demo-button">Сравнить и сохранить</button>
+            </form>
+        </section>
+
+        <section class="demo-panel">
+            <div class="demo-panel__header">
+                <h2>Состояние таблиц</h2>
+                <p>
+                    Размер учебной таблицы: {{ table_size }} ячеек.
+                    {% if selected_collision_method == "chaining" %}
+                    Для каждой хеш-функции показаны цепочки записей в корзинах.
+                    {% else %}
+                    Для каждой хеш-функции показана итоговая таблица после повторного пробирования.
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="compare-state-grid">
+                {% for function_state in table_states %}
+                <article class="compare-state-card">
+                    <div class="compare-state-card__header">
+                        <h3>{{ function_state.label }}</h3>
+                        <p>{{ function_state.description }}</p>
+                    </div>
+
+                    <div class="demo-hash-grid">
+                        {% if selected_collision_method == "chaining" %}
+                            {% for bucket in function_state.table_state %}
+                            <article class="demo-slot">
+                                <div class="demo-slot__header">
+                                    <span class="demo-slot__index">Корзина {{ bucket["index"] }}</span>
+                                    <span class="demo-slot__count">{{ bucket["items"]|length }} записей</span>
+                                </div>
+
+                                {% if bucket["items"] %}
+                                <div class="demo-slot__items">
+                                    {% for entry in bucket["items"] %}
+                                    <div class="demo-slot__item">
+                                        <strong>{{ entry.message }}</strong>
+                                        <span>{{ entry.hash_value[:16] }}...</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="demo-slot__empty">Корзина пуста</div>
+                                {% endif %}
+                            </article>
+                            {% endfor %}
+                        {% else %}
+                            {% for slot in function_state.table_state %}
+                            <article class="demo-slot">
+                                <div class="demo-slot__header">
+                                    <span class="demo-slot__index">Ячейка {{ slot["index"] }}</span>
+                                </div>
+
+                                {% if slot["entry"] %}
+                                <div class="demo-slot__items">
+                                    <div class="demo-slot__item">
+                                        <strong>{{ slot["entry"].message }}</strong>
+                                        <span>{{ slot["entry"].hash_value[:16] }}...</span>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="demo-slot__empty">Свободно</div>
+                                {% endif %}
+                            </article>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <section class="demo-panel">
+        <div class="demo-panel__header">
+            <h2>Журнал сравнений</h2>
+            <p>
+                В каждой строке показано исходное сообщение, все вычисленные дайджесты и отдельные подробные пояснения
+                по каждой из выбранных функций.
+            </p>
+        </div>
+
+        {% if entries %}
+        <div class="demo-table-wrap">
+            <table class="demo-table compare-table">
+                <thead>
+                    <tr>
+                        <th>Сообщение</th>
+                        <th>Результаты</th>
+                        <th>Пояснения</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in entries %}
+                    <tr>
+                        <td class="demo-table__message">{{ entry.message }}</td>
+                        <td>
+                            <div class="compare-results">
+                                {% for result in entry.results %}
+                                <div class="compare-result-card">
+                                    <strong>{{ result.hash_label }}</strong>
+                                    <code class="demo-hash">{{ result.hash_value }}</code>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="demo-notes">
+                                {% for result in entry.results %}
+                                <div class="demo-note-block">
+                                    <strong>{{ result.hash_label }}</strong>
+                                    <p>{{ result.process_note }}</p>
+                                    <p>{{ result.collision_note }}</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td>
+                            <form action="{{ url_for('compare_delete', entry_id=entry.id) }}" method="post" data-preserve-compare-session="true">
+                                {% for code in selected_hash_functions %}
+                                <input type="hidden" name="hash_function" value="{{ code }}">
+                                {% endfor %}
+                                <input type="hidden" name="collision_method" value="{{ selected_collision_method }}">
+                                <button type="submit" class="demo-delete-button">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="education-empty-state">
+            Пока нет ни одного сообщения для сравнения. Добавьте первое сообщение, чтобы увидеть сразу несколько дайджестов в одной строке таблицы.
+        </div>
+        {% endif %}
+    </section>
+</section>
+
+{% if is_guest_compare %}
+<script>
+(() => {
+    let preserveCompareSession = false;
+
+    document.querySelectorAll("[data-preserve-compare-session='true']").forEach((form) => {
+        form.addEventListener("submit", () => {
+            preserveCompareSession = true;
+        });
+    });
+
+    window.addEventListener("pagehide", () => {
+        if (preserveCompareSession) {
+            return;
+        }
+
+        navigator.sendBeacon("{{ url_for('compare_clear') }}", new URLSearchParams());
+    });
+})();
+</script>
+{% endif %}
+{% endblock %}
