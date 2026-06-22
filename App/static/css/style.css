@@ -1389,9 +1389,9 @@ body,
 }
 
 .demo-table-wrap{
-    max-height: 800px;
+    overflow-x: auto;
     overflow-y: auto;
-    overflow-x: hidden;
+    max-height: 600px;
 }
 
 .demo-table{
@@ -1463,33 +1463,7 @@ body,
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 100%;
-}
-
-.compare-table{
-    table-layout: fixed;
-    width: 100%;
-}
-
-.compare-table td,
-.compare-table th{
-    word-break: break-word;
-    overflow-wrap: anywhere;
-}
-
-.demo-note-block,
-.compare-result-card{
-    min-width: 0;
-}
-
-.demo-hash{
-    max-width: 100%;
-    word-break: break-all;
-}
-
-.demo-notes p{
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
+    min-width: 340px;
 }
 
 .demo-note-block{
@@ -1539,7 +1513,7 @@ body,
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 100%;
+    min-width: 280px;
 }
 
 .compare-result-card{
@@ -2009,15 +1983,6 @@ body,
 }
 
 @media (max-width: 768px){
-    
-    .navbar__brand-copy{
-        display: none;
-    }
-    
-    .navbar__brand{
-        flex: 0;
-    }
-
     .container{
         width: min(100vw - 24px, 1240px);
         padding: 24px 0 56px;
@@ -2036,6 +2001,10 @@ body,
 
     .navbar__brand{
         flex: 1;
+    }
+
+    .navbar__brand-title{
+        display: none;
     }
 
     .navbar__brand-subtitle{
