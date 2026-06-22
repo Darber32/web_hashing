@@ -2003,11 +2003,12 @@ body,
         flex: 1;
     }
 
-    .navbar__brand-title{
-        display: none;
+    .navbar__brand-copy{
+        display:none;
     }
 
-    .navbar__brand-subtitle{
+
+    .navbar__brand-title, .navbar__brand-subtitle{
         display: none;
     }
 
