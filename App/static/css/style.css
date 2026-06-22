@@ -1389,7 +1389,9 @@ body,
 }
 
 .demo-table-wrap{
-    overflow-x: auto;
+    max-height: 800px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .demo-table{
@@ -1461,7 +1463,33 @@ body,
     display: flex;
     flex-direction: column;
     gap: 10px;
-    min-width: 340px;
+    width: 100%;
+}
+
+.compare-table{
+    table-layout: fixed;
+    width: 100%;
+}
+
+.compare-table td,
+.compare-table th{
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.demo-note-block,
+.compare-result-card{
+    min-width: 0;
+}
+
+.demo-hash{
+    max-width: 100%;
+    word-break: break-all;
+}
+
+.demo-notes p{
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 .demo-note-block{
@@ -1511,7 +1539,7 @@ body,
     display: flex;
     flex-direction: column;
     gap: 10px;
-    min-width: 280px;
+    width: 100%;
 }
 
 .compare-result-card{
@@ -1981,6 +2009,15 @@ body,
 }
 
 @media (max-width: 768px){
+    
+    .navbar__brand-copy{
+        display: none;
+    }
+    
+    .navbar__brand{
+        flex: 0;
+    }
+
     .container{
         width: min(100vw - 24px, 1240px);
         padding: 24px 0 56px;
